@@ -1,7 +1,7 @@
 from pydantic import BaseModel, Field, validator, model_validator, ConfigDict
 from datetime import date
 from typing import Optional, List
-from .models import CupSize, OrderType, StorageLocation, DressCondition, DressStatus
+from db.models import CupSize, OrderType, StorageLocation, DressCondition, DressStatus
 
 class DressInventoryBase(BaseModel):
     model_number: str

@@ -1,9 +1,8 @@
 import asyncio
 from telegram import Update
 from telegram.ext import ContextTypes
-from bot.utils.db import get_db_session
+from db import get_session, repositories
 from bot.utils.formatting import format_dress_detail, split_message
-from backend.src import bot_crud
 
 USAGE = "Usage: /dress <model_number>\nExample: /dress 1234"
 
@@ -17,8 +16,8 @@ async def dress_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
 
     try:
         def _query():
-            with get_db_session() as db:
-                return bot_crud.get_dresses_by_model(db, model_number)
+            with get_session() as db:
+                return repositories.get_dresses_by_model(db, model_number)
 
         dresses = await asyncio.to_thread(_query)
     except Exception:

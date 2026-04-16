@@ -1,10 +1,8 @@
 import asyncio
 from telegram import Update
 from telegram.ext import ContextTypes
-from bot.utils.db import get_db_session
+from db import get_session, repositories, DressInventory
 from bot.utils.formatting import format_status_update, split_message, VALID_STATUSES_TEXT
-from backend.src import bot_crud
-from backend.src.models import DressStatus
 
 USAGE = "Usage: /status <item_id> <new_status>\nExample: /status 7 in sewing"
 
@@ -25,12 +23,12 @@ async def status_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
 
     try:
         def _query():
-            with get_db_session() as db:
-                old = db.query(bot_crud.models.DressInventory).filter(
-                    bot_crud.models.DressInventory.item_id == item_id
+            with get_session() as db:
+                old = db.query(DressInventory).filter(
+                    DressInventory.item_id == item_id
                 ).first()
                 old_status = old.status.value if old else None
-                updated = bot_crud.update_dress_status(db, item_id, new_status_normalized)
+                updated = repositories.update_dress_status(db, item_id, new_status_normalized)
                 return old_status, updated
 
         old_status, dress = await asyncio.to_thread(_query)

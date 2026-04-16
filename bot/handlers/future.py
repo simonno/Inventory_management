@@ -1,16 +1,15 @@
 import asyncio
 from telegram import Update
 from telegram.ext import ContextTypes
-from bot.utils.db import get_db_session
+from db import get_session, repositories
 from bot.utils.formatting import format_future_stock, split_message
-from backend.src import bot_crud
 
 
 async def future_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     try:
         def _query():
-            with get_db_session() as db:
-                return bot_crud.get_future_stock(db)
+            with get_session() as db:
+                return repositories.get_future_stock(db)
 
         result = await asyncio.to_thread(_query)
         text = format_future_stock(result)

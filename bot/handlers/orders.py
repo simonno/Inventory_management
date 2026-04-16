@@ -1,9 +1,8 @@
 import asyncio
 from telegram import Update
 from telegram.ext import ContextTypes
-from bot.utils.db import get_db_session
+from db import get_session, repositories
 from bot.utils.formatting import format_orders, split_message
-from backend.src import bot_crud
 
 USAGE = "Usage: /orders or /orders <days>\nExample: /orders 30"
 
@@ -16,15 +15,13 @@ async def orders_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
             if days <= 0:
                 raise ValueError
         except ValueError:
-            await update.message.reply_text(
-                f"Days must be a positive number.\n{USAGE}"
-            )
+            await update.message.reply_text(f"Days must be a positive number.\n{USAGE}")
             return
 
     try:
         def _query():
-            with get_db_session() as db:
-                return bot_crud.get_orders_filtered(db, days=days)
+            with get_session() as db:
+                return repositories.get_orders_filtered(db, days=days)
 
         orders = await asyncio.to_thread(_query)
     except Exception:

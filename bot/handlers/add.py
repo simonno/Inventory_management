@@ -1,10 +1,8 @@
 import asyncio
 from telegram import Update
 from telegram.ext import ContextTypes
-from bot.utils.db import get_db_session
+from db import get_session, repositories, CupSize, StorageLocation
 from bot.utils.formatting import format_dress_added
-from backend.src import bot_crud
-from backend.src.models import CupSize, StorageLocation
 
 USAGE = (
     'Usage: /add <model> <size> <cup> <location>\n'
@@ -26,8 +24,8 @@ async def add_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
 
     try:
         def _query():
-            with get_db_session() as db:
-                return bot_crud.add_dress(db, model, size, cup, location)
+            with get_session() as db:
+                return repositories.add_dress(db, model, size, cup, location)
 
         dress = await asyncio.to_thread(_query)
     except ValueError as e:

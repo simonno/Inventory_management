@@ -1,16 +1,15 @@
 import asyncio
 from telegram import Update
 from telegram.ext import ContextTypes
-from bot.utils.db import get_db_session
+from db import get_session, repositories
 from bot.utils.formatting import format_live_stock, split_message
-from backend.src import bot_crud
 
 
 async def stock_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     try:
         def _query():
-            with get_db_session() as db:
-                return bot_crud.get_live_stock(db)
+            with get_session() as db:
+                return repositories.get_live_stock(db)
 
         dresses = await asyncio.to_thread(_query)
         text = format_live_stock(dresses)
