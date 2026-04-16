@@ -1,56 +1,86 @@
 import React from 'react';
 import { useApi } from '../hooks/useApi';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 const InventoryTable: React.FC = () => {
   const { inventory, loading } = useApi();
 
-  if (loading) return <div className="p-8 text-center uppercase tracking-ultra-wide">טוען מלאי...</div>;
+  if (loading) return <div className="p-12 text-center uppercase tracking-[0.5em] text-muted-gray animate-pulse font-bold">Accessing Atelier Vault...</div>;
 
   return (
-    <div className="bg-ivory border-hairline border-noir">
-      <div className="p-6 border-b border-noir flex justify-between items-center">
-        <h2 className="text-2xl uppercase tracking-widest text-noir">מלאי שמלות</h2>
-        <span className="text-xs text-slate-silk uppercase tracking-ultra-wide">{inventory.length} פריטים</span>
-      </div>
+    <Card className="glass-card-noir shadow-2xl overflow-hidden border-stark-white/10">
+      <CardHeader className="border-b border-stark-white/5 flex flex-row justify-between items-center py-10 px-10 bg-stark-white/[0.02]">
+        <div className="space-y-2">
+          <Badge variant="outline" className="text-[9px] border-stark-white/20 text-muted-gray tracking-[0.2em] font-black py-0.5 uppercase">
+            Asset Registry
+          </Badge>
+          <CardTitle className="text-4xl uppercase tracking-[0.15em] text-stark-white font-display">מלאי שמלות</CardTitle>
+        </div>
+        <div className="flex flex-col items-end">
+          <span className="text-4xl font-display text-stark-white">{inventory.length}</span>
+          <span className="text-[9px] uppercase tracking-widest text-muted-gray font-black">Registered Units</span>
+        </div>
+      </CardHeader>
       
-      <div className="overflow-x-auto">
-        <table className="w-full text-right border-collapse">
-          <thead>
-            <tr className="bg-noir text-ivory">
-              <th className="p-4 text-xs uppercase tracking-ultra-wide font-medium">מזהה</th>
-              <th className="p-4 text-xs uppercase tracking-ultra-wide font-medium">מספר דגם</th>
-              <th className="p-4 text-xs uppercase tracking-ultra-wide font-medium">מידה</th>
-              <th className="p-4 text-xs uppercase tracking-ultra-wide font-medium">קאפ</th>
-              <th className="p-4 text-xs uppercase tracking-ultra-wide font-medium">מיקום</th>
-              <th className="p-4 text-xs uppercase tracking-ultra-wide font-medium">סטטוס</th>
-              <th className="p-4 text-xs uppercase tracking-ultra-wide font-medium">מצב</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y border-noir divide-noir/10">
-            {inventory.map((item) => (
-              <tr key={item.item_id} className="hover:bg-champagne/10 transition-colors">
-                <td className="p-4 text-sm font-mono text-slate-silk">#{item.item_id}</td>
-                <td className="p-4 text-sm font-medium">{item.model_number}</td>
-                <td className="p-4 text-sm">{item.size}</td>
-                <td className="p-4 text-sm">{item.cup_size}</td>
-                <td className="p-4 text-sm">{item.storage_location}</td>
-                <td className="p-4 text-sm">
-                   <span className="inline-block px-2 py-1 text-[10px] uppercase tracking-wider border border-noir">
-                     {item.status}
-                   </span>
-                </td>
-                <td className="p-4 text-sm text-slate-silk">{item.dress_condition}</td>
-              </tr>
-            ))}
-            {inventory.length === 0 && (
-              <tr>
-                <td colSpan={7} className="p-12 text-center text-slate-silk italic">אין פריטים במלאי</td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
-    </div>
+      <CardContent className="p-0">
+        <ScrollArea className="h-[600px] w-full">
+          <Table className="w-full text-right border-collapse">
+            <TableHeader className="sticky top-0 bg-noir z-10">
+              <TableRow className="hover:bg-noir border-stark-white/10">
+                <TableHead className="p-8 text-[11px] uppercase tracking-[0.3em] font-black text-stark-white text-right">ID</TableHead>
+                <TableHead className="p-8 text-[11px] uppercase tracking-[0.3em] font-black text-stark-white text-right">MODEL</TableHead>
+                <TableHead className="p-8 text-[11px] uppercase tracking-[0.3em] font-black text-stark-white text-right">SIZE</TableHead>
+                <TableHead className="p-8 text-[11px] uppercase tracking-[0.3em] font-black text-stark-white text-right">CUP</TableHead>
+                <TableHead className="p-8 text-[11px] uppercase tracking-[0.3em] font-black text-stark-white text-right">LOC</TableHead>
+                <TableHead className="p-8 text-[11px] uppercase tracking-[0.3em] font-black text-stark-white text-right">STATUS</TableHead>
+                <TableHead className="p-8 text-[11px] uppercase tracking-[0.3em] font-black text-stark-white text-right">COND</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody className="divide-y divide-stark-white/5">
+              {inventory.map((item) => (
+                <TableRow key={item.item_id} className="hover:bg-stark-white/[0.04] transition-all duration-500 border-stark-white/5 group">
+                  <TableCell className="p-8 text-xs font-mono text-muted-gray group-hover:text-stark-white transition-colors">#{item.item_id}</TableCell>
+                  <TableCell className="p-8 text-sm font-bold tracking-widest text-stark-white">{item.model_number}</TableCell>
+                  <TableCell className="p-8 text-sm text-stark-white/70">{item.size}</TableCell>
+                  <TableCell className="p-8 text-sm text-stark-white/70">{item.cup_size}</TableCell>
+                  <TableCell className="p-8 text-sm text-stark-white/70">{item.storage_location}</TableCell>
+                  <TableCell className="p-8 text-sm">
+                    <Badge variant="outline" className="px-4 py-1.5 text-[9px] uppercase tracking-[0.2em] font-black border-stark-white/20 group-hover:bg-stark-white group-hover:text-noir transition-all duration-500">
+                      {item.status}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="p-8 text-sm text-muted-gray italic group-hover:text-stark-white group-hover:not-italic transition-all">
+                    {item.dress_condition}
+                  </TableCell>
+                </TableRow>
+              ))}
+              {inventory.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={7} className="p-32 text-center">
+                    <div className="flex flex-col items-center gap-6">
+                      <div className="w-16 h-16 border-2 border-stark-white/5 flex items-center justify-center opacity-20 rotate-45">
+                        <span className="text-xl -rotate-45">!</span>
+                      </div>
+                      <p className="text-[11px] uppercase tracking-[0.5em] text-muted-gray font-bold italic">Vault is currently empty</p>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </ScrollArea>
+      </CardContent>
+    </Card>
   );
 };
 

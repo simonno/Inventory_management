@@ -1,23 +1,81 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap');
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
 
 @theme {
-  --color-noir: #1A1A1A;
-  --color-ivory: #FDFCFB;
-  --color-champagne: #EADEDA;
-  --color-slate-silk: #8E8E8E;
+  --color-noir: #0A0A0A; /* Deepest Black */
+  --color-stark-white: #FAFAFA; /* Stark White */
+  --color-slate-gray: #404040; /* Mid Gray */
+  --color-dark-gray: #171717; /* Dark Gray */
+  --color-muted-gray: #737373; /* Muted Gray */
   --font-display: "Playfair Display", serif;
   --font-sans: "Inter", sans-serif;
-  --letter-spacing-ultra-wide: 0.15em;
+  --letter-spacing-ultra-wide: 0.2em;
   --border-width-hairline: 0.5px;
+
+  /* shadcn mappings to Atelier Noir */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  /* New Tokens for Atelier Noir */
+  --shadow-noir-deep: 0 12px 64px 0 rgba(0, 0, 0, 0.4);
+  --color-glass-noir-bg: rgba(10, 10, 10, 0.85);
+  --color-glass-noir-border: rgba(250, 250, 250, 0.1);
+
+  /* Modern Ease */
+  --ease-noder: cubic-bezier(0.19, 1, 0.22, 1);
 }
 
 @layer base {
+  :root {
+    --background: #0A0A0A;
+    --foreground: #FAFAFA;
+    --card: #121212;
+    --card-foreground: #FAFAFA;
+    --popover: #121212;
+    --popover-foreground: #FAFAFA;
+    --primary: #FAFAFA;
+    --primary-foreground: #0A0A0A;
+    --secondary: #262626;
+    --secondary-foreground: #FAFAFA;
+    --muted: #262626;
+    --muted-foreground: #737373;
+    --accent: #262626;
+    --accent-foreground: #FAFAFA;
+    --destructive: #FAFAFA; /* Stark White for alerts */
+    --destructive-foreground: #0A0A0A;
+    --border: rgba(250, 250, 250, 0.1);
+    --input: rgba(250, 250, 250, 0.1);
+    --ring: #FAFAFA;
+    --radius: 0px;
+  }
+
   html {
     direction: rtl;
-    background-color: var(--color-ivory);
-    color: var(--color-noir);
+    background-color: var(--color-noir);
+    color: var(--color-stark-white);
     font-family: var(--font-sans);
+    scroll-behavior: smooth;
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -25,47 +83,28 @@
     letter-spacing: 0.05em;
   }
 
-  /* Sharp corners and hairline borders as per Atelier theme */
   * {
     border-radius: 0 !important;
   }
+}
 
-  input, select, textarea, button {
-    border: 0.5px solid var(--color-noir);
-    background-color: transparent;
-    padding: 0.75rem 1rem;
-    outline: none;
-    transition: all 0.2s ease-in-out;
+@layer components {
+  /* Atelier Noir Glass Card */
+  .glass-card-noir {
+    background: var(--color-glass-noir-bg);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 0.5px solid var(--color-glass-noir-border);
+    box-shadow: var(--shadow-noir-deep);
   }
 
-  input:focus, select:focus, textarea:focus {
-    border-color: var(--color-slate-silk);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+  /* Bold Button Transitions */
+  .btn-noder {
+    @apply transition-all duration-500 ease-noder active:scale-[0.98] hover:shadow-[0_0_24px_rgba(250,250,250,0.15)];
   }
 
-  button {
-    cursor: pointer;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    font-weight: 500;
-  }
-
-  button.primary {
-    background-color: var(--color-noir);
-    color: var(--color-ivory);
-    border: none;
-  }
-
-  button.primary:hover {
-    background-color: #333;
-  }
-
-  button.secondary {
-    border: 0.5px solid var(--color-noir);
-    color: var(--color-noir);
-  }
-
-  button.secondary:hover {
-    background-color: var(--color-champagne);
+  /* Stark Input focus state */
+  .input-noir {
+    @apply border-b-hairline border-x-0 border-t-0 bg-transparent transition-all duration-700 focus:border-b-stark-white placeholder:text-muted-foreground/30;
   }
 }
