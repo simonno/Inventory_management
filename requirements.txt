@@ -8,4 +8,4 @@ python-multipart
 psycopg2-binary
 
 # Worker (Telegram bot)
-python-telegram-bot==20.*
+python-telegram-bot>=20.0,<21.0
