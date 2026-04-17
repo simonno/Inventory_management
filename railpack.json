@@ -8,13 +8,13 @@
     "install": {
       "commands": [
         "...",
-        "cd frontend && npm install"
+        "npm install --prefix frontend"
       ]
     },
     "build": {
       "inputs": [{ "step": "install" }],
       "commands": [
-        "cd frontend && npm run build"
+        "npm run build --prefix frontend"
       ]
     }
   },
