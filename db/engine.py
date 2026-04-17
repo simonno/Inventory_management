@@ -15,10 +15,11 @@ if not DATABASE_URL:
     DATABASE_URL = "sqlite:///./inventory.db"
     logger.warning("DATABASE_URL not set, using default: sqlite:///./inventory.db")
 
+_is_sqlite = DATABASE_URL.startswith("sqlite")
 _in_memory = DATABASE_URL == "sqlite:///:memory:"
 engine = create_engine(
     DATABASE_URL,
-    connect_args={"check_same_thread": False},
+    connect_args={"check_same_thread": False} if _is_sqlite else {},
     poolclass=StaticPool if _in_memory else NullPool,
 )
 

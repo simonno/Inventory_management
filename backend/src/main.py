@@ -1,5 +1,8 @@
+import os
+
 from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
 from typing import List
 
@@ -10,9 +13,10 @@ Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Bridal Inventory System")
 
+_allow_origins = os.environ.get("CORS_ORIGINS", "*").split(",")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=_allow_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -50,6 +54,6 @@ def link_order(order_id: int, dress_id: int, db: Session = Depends(get_db)):
     return db_order
 
 
-@app.get("/")
-def read_root():
-    return {"message": "Bridal Inventory System API"}
+_dist = os.path.join(os.path.dirname(__file__), "..", "..", "frontend", "dist")
+if os.path.isdir(_dist):
+    app.mount("/", StaticFiles(directory=_dist, html=True), name="static")
