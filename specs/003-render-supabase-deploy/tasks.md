@@ -16,8 +16,8 @@
 
 **Purpose**: Create root-level deployment artifacts and fix cross-cutting compatibility issues
 
-- [ ] T001 Create root `requirements.txt` combining backend + bot deps with `psycopg2-binary`, removing `aiosqlite` at `/Users/simonoam/PycharmProjects/Inventory_management/requirements.txt`
-- [ ] T002 Fix `db/engine.py` — make `connect_args={"check_same_thread": False}` conditional on SQLite, so Postgres connections work correctly
+- [x] T001 Create root `requirements.txt` combining backend + bot deps with `psycopg2-binary`, removing `aiosqlite` at `/Users/simonoam/PycharmProjects/Inventory_management/requirements.txt`
+- [x] T002 Fix `db/engine.py` — make `connect_args={"check_same_thread": False}` conditional on SQLite, so Postgres connections work correctly
 
 **Checkpoint**: Shared infra ready — all user stories can now proceed
 
@@ -27,8 +27,8 @@
 
 **Purpose**: Verify Postgres compatibility and frontend build work before deploying
 
-- [ ] T003 Verify SQLAlchemy models in `db/models.py` use no SQLite-specific column types (run `python -c "from db.models import Base; print(Base.metadata.tables)"` successfully)
-- [ ] T004 Build React frontend: run `cd frontend && npm install && npm run build` and confirm `frontend/dist/index.html` exists
+- [x] T003 Verify SQLAlchemy models in `db/models.py` use no SQLite-specific column types (run `python -c "from db.models import Base; print(Base.metadata.tables)"` successfully)
+- [x] T004 Build React frontend: run `cd frontend && npm install && npm run build` and confirm `frontend/dist/index.html` exists
 
 **⚠️ CRITICAL**: Both checks must pass before user story implementation can begin
 
@@ -44,8 +44,8 @@
 
 ### Implementation
 
-- [ ] T005 [US1] Add static file serving to `backend/src/main.py` — import `StaticFiles`, remove `read_root()` route, mount `frontend/dist` at `"/"` after all API routes
-- [ ] T006 [US1] Test static serving locally: run `uvicorn backend.src.main:app --host 0.0.0.0 --port 8000` from repo root, confirm `http://localhost:8000` returns React UI and `http://localhost:8000/inventory/` returns JSON
+- [x] T005 [US1] Add static file serving to `backend/src/main.py` — import `StaticFiles`, remove `read_root()` route, mount `frontend/dist` at `"/"` after all API routes
+- [x] T006 [US1] Test static serving locally: run `uvicorn backend.src.main:app --host 0.0.0.0 --port 8000` from repo root, confirm `http://localhost:8000` returns React UI and `http://localhost:8000/inventory/` returns JSON
 
 **Checkpoint**: US1 complete — single service serves both frontend and API locally
 
@@ -59,8 +59,8 @@
 
 ### Implementation
 
-- [ ] T007 [US3] Write integration smoke test in `db/tests/test_engine_postgres_compat.py` — assert engine URL scheme starts with `postgresql` when `DATABASE_URL` env var is set to a postgres URL, and that `check_same_thread` is not passed as connect arg
-- [ ] T008 [US3] Run smoke test: `python -m pytest db/tests/test_engine_postgres_compat.py -v` — confirm it passes after T002 fix
+- [x] T007 [US3] Write integration smoke test in `db/tests/test_engine_postgres_compat.py` — assert engine URL scheme starts with `postgresql` when `DATABASE_URL` env var is set to a postgres URL, and that `check_same_thread` is not passed as connect arg
+- [x] T008 [US3] Run smoke test: `python -m pytest db/tests/test_engine_postgres_compat.py -v` — confirm it passes after T002 fix
 
 **Checkpoint**: US3 complete — DB layer is Postgres-ready and validated
 
@@ -74,8 +74,8 @@
 
 ### Implementation
 
-- [ ] T009 [P] [US2] Verify bot entry point: run `python -c "import bot.main; print('OK')"` from repo root — confirm no import errors
-- [ ] T010 [US2] Create `render.yaml` at repo root with web service (FastAPI + frontend build) and worker (bot polling) definitions including env var declarations for `DATABASE_URL` and `TELEGRAM_BOT_TOKEN`
+- [x] T009 [P] [US2] Verify bot entry point: run `python -c "import bot.main; print('OK')"` from repo root — confirm no import errors
+- [x] T010 [US2] Create `render.yaml` at repo root with web service (FastAPI + frontend build) and worker (bot polling) definitions including env var declarations for `DATABASE_URL` and `TELEGRAM_BOT_TOKEN`
 
 **Checkpoint**: US2 complete — render.yaml declares both services with correct build/start commands
 
@@ -85,9 +85,9 @@
 
 **Purpose**: Final validation, commit, and deploy readiness
 
-- [ ] T011 [P] Verify `render.yaml` is valid YAML: `python -c "import yaml; yaml.safe_load(open('render.yaml'))"` — no errors
-- [ ] T012 [P] Verify `.gitignore` excludes `frontend/dist/` and `*.db` files — add patterns if missing
-- [ ] T013 Commit all changes: `git add db/engine.py backend/src/main.py requirements.txt render.yaml && git commit -m "feat: deploy to Render with Supabase Postgres"`
+- [x] T011 [P] Verify `render.yaml` is valid YAML: `python -c "import yaml; yaml.safe_load(open('render.yaml'))"` — no errors
+- [x] T012 [P] Verify `.gitignore` excludes `frontend/dist/` and `*.db` files — add patterns if missing
+- [x] T013 Commit all changes: `git add db/engine.py backend/src/main.py requirements.txt render.yaml && git commit -m "feat: deploy to Render with Supabase Postgres"`
 - [ ] T014 Push branch and follow `quickstart.md` steps to deploy on Render with Supabase `DATABASE_URL` and `TELEGRAM_BOT_TOKEN` set as environment variables
 
 ---
