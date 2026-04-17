@@ -54,6 +54,10 @@ def link_order(order_id: int, dress_id: int, db: Session = Depends(get_db)):
     return db_order
 
 
-_dist = os.path.join(os.path.dirname(__file__), "..", "..", "frontend", "dist")
+_dist = os.path.join(os.getcwd(), "frontend", "dist")
 if os.path.isdir(_dist):
     app.mount("/", StaticFiles(directory=_dist, html=True), name="static")
+else:
+    @app.get("/")
+    def read_root():
+        return {"status": "ok", "dist": _dist, "exists": os.path.isdir(_dist)}
