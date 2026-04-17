@@ -54,22 +54,23 @@ All inventory data is stored in Supabase Postgres. Both the web app and Telegram
 
 ### Edge Cases
 
-- What happens if Supabase is temporarily unreachable? Both services should fail gracefully with a clear error, not silently corrupt data.
-- What if the Render worker (bot) restarts? It should resume polling without data loss.
-- What if `DATABASE_URL` is missing from environment variables? Services should fail at startup with a clear configuration error, not at runtime.
+- What happens if Supabase is temporarily unreachable? Both services should log the error to stderr and exit with a non-zero code; they must not silently corrupt data or fall back to SQLite in production.
+- What if the Render worker (bot) restarts? Telegram's polling API retains messages for 24 hours; the bot will process any pending commands on resume. Missed commands during the restart window are acceptable for this internal tool.
+- What if `DATABASE_URL` is missing from environment variables? The service logs a warning and falls back to SQLite (dev behaviour); in production this is prevented by Render's required env var configuration — no additional startup guard is required.
 
 ## Requirements *(mandatory)*
 
 ### Functional Requirements
 
-- **FR-001**: System MUST connect to Supabase Postgres using a `DATABASE_URL` environment variable, with no hardcoded connection strings.
-- **FR-002**: The FastAPI web service MUST serve both the REST API and the compiled React frontend static files from a single Render web service.
-- **FR-003**: The Telegram bot MUST run as a separate Render worker service (always-on, no sleep).
-- **FR-004**: Both services MUST use the shared `db/` SQLAlchemy layer for all database access.
-- **FR-005**: The SQLite-specific connection argument MUST be removed or made conditional so Postgres connections function correctly.
-- **FR-006**: Deployments MUST be triggered automatically from the main Git branch via Render's GitHub integration.
-- **FR-007**: All secrets (`DATABASE_URL`, Telegram bot token) MUST be stored as Render environment variables, never in code or committed files.
-- **FR-008**: The React frontend build artifact MUST be served as static files by FastAPI in production.
+- **FR-001**: System MUST connect to Supabase Postgres using a `DATABASE_URL` environment variable, with no hardcoded connection strings. The connection string format is `postgresql://postgres:[PASSWORD]@db.[REF].supabase.co:5432/postgres`.
+- **FR-002**: The FastAPI web service MUST serve both the REST API and the compiled React frontend static files from a single Render **web** service. The frontend is mounted at `/` with SPA fallback (`html=True`) so client-side routing works. All API routes take precedence over the static mount.
+- **FR-003**: The Telegram bot MUST run as a separate Render **worker** service (not a web service) — worker services never sleep on Render's free tier.
+- **FR-004**: Both services MUST use the shared `db/` SQLAlchemy layer for all database access. SQLAlchemy's `Base.metadata.create_all()` runs at startup and creates all tables on first deploy — no separate migration step is needed.
+- **FR-005**: The SQLite-specific `connect_args={"check_same_thread": False}` MUST be made conditional (applied only when `DATABASE_URL` starts with `sqlite`) so Postgres connections function correctly.
+- **FR-006**: Deployments MUST be triggered automatically when the `main` branch is updated, via Render's GitHub integration declared in `render.yaml`.
+- **FR-007**: All secrets (`DATABASE_URL`, Telegram bot token) MUST be stored as Render environment variables (declared `sync: false` in `render.yaml`), never in committed files or build logs. The web service receives `DATABASE_URL` only; the worker receives both `DATABASE_URL` and `TELEGRAM_BOT_TOKEN`.
+- **FR-008**: The React frontend build artifact (`frontend/dist/`) MUST be produced at build time (`npm run build`) and served as static files by FastAPI in production.
+- **FR-009**: CORS `allow_origins` MUST be restricted to the Render web service's own origin in production (same-origin requests from the served frontend require no CORS headers). `allow_origins=["*"]` is only acceptable in local development.
 
 ### Key Entities
 
@@ -81,17 +82,21 @@ All inventory data is stored in Supabase Postgres. Both the web app and Telegram
 
 ### Measurable Outcomes
 
-- **SC-001**: The web app is accessible via a public URL within 30 seconds of a cold start.
-- **SC-002**: The Telegram bot responds to commands within 5 seconds under normal conditions.
-- **SC-003**: A change made via the web app is visible via the bot (and vice versa) within 2 seconds.
-- **SC-004**: Zero manual server maintenance steps are required for routine operation (deploys, restarts).
-- **SC-005**: All infrastructure runs within free tier limits of Render and Supabase.
+- **SC-001**: The web app is accessible via a public URL within 30 seconds of a cold start (maximum acceptable cold start time).
+- **SC-002**: The Telegram bot responds to commands within 5 seconds under normal conditions. This is a best-effort guideline for the Render free tier; occasional higher latency is acceptable for an internal tool.
+- **SC-003**: A change made via the web app is visible via the bot (and vice versa) within 2 seconds. This is a best-effort target reflecting direct Postgres writes with no caching layer — not a hard SLA.
+- **SC-004**: Zero manual steps required for routine deploys and service restarts (git push to `main` triggers both). Secret rotation and database backups are explicitly out of scope for this phase.
+- **SC-005**: All infrastructure runs within free tier limits of Render and Supabase. If free tier limits (Supabase 500 MB storage, Render monthly credit) are approached, the team will be notified via Render/Supabase dashboards — no automated alerting is required for this internal tool.
 
 ## Assumptions
 
-- The app is for a small internal team; cold start delays on the free web service tier are acceptable.
-- Existing SQLAlchemy models are fully Postgres-compatible (no SQLite-specific column types used).
-- The React frontend is a standard Vite SPA that produces a static build output folder.
-- No user authentication layer is required for this deployment phase.
-- Existing inventory data in SQLite does not need to be migrated; a fresh start on Supabase is acceptable.
-- The Telegram bot uses polling (not webhooks), so it requires an always-on process.
+- The app is for a small internal team; cold start delays (up to 30s) on the free web service tier are acceptable.
+- Existing SQLAlchemy models are fully Postgres-compatible (no SQLite-specific column types used). This is validated by T003/T007 in tasks.md before deploy.
+- The React frontend is a standard Vite SPA that produces a `frontend/dist/` build output folder.
+- The web UI is publicly accessible via the Render URL (no IP restriction or authentication required). This is an explicit decision for this internal tool phase.
+- Existing inventory data in SQLite does not need to be migrated; a fresh start on Supabase is acceptable. **This assumption must be confirmed by all team members before deploy.**
+- The Telegram bot uses polling (not webhooks), so it requires an always-on Render worker process.
+- Supabase's built-in daily backups (retained 7 days on the free tier) are sufficient for disaster recovery for this internal tool.
+- Concurrent writes from the web app and bot are handled by Postgres row-level locking; no application-level concurrency control is required at this scale.
+- Secret rotation (DB password, bot token) is a manual process done via the Render and Supabase dashboards when needed; no automated rotation is required for this phase.
+- Render automatically retains the previous successful deployment and allows one-click rollback via its dashboard if a new deploy fails.
