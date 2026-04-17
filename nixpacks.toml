@@ -1,5 +1,4 @@
-[phases.setup]
-nixPkgs = ["python39", "nodejs_20"]
+providers = ["python", "node"]
 
 [phases.build]
 cmds = [
