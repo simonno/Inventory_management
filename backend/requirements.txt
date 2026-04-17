@@ -1,7 +1,7 @@
 fastapi
-uvicorn
+uvicorn[standard]
 sqlalchemy
 pydantic
 pydantic-settings
 python-multipart
-aiosqlite
+psycopg2-binary
