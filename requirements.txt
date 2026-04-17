@@ -1,0 +1,11 @@
+# Web service (FastAPI + static frontend)
+fastapi
+uvicorn[standard]
+sqlalchemy
+pydantic
+pydantic-settings
+python-multipart
+psycopg2-binary
+
+# Worker (Telegram bot)
+python-telegram-bot==20.*

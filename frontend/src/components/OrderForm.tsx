@@ -117,7 +117,7 @@ const OrderForm: React.FC = () => {
                   </div>
                   <div className="space-y-3">
                     <Label className="text-[11px] uppercase tracking-[0.2em] text-muted-gray font-bold">סוג הזמנה</Label>
-                    <Select value={formData.order_type} onValueChange={(val: string) => setFormData({...formData, order_type: val})}>
+                    <Select value={formData.order_type} onValueChange={(val: string | null) => setFormData({...formData, order_type: val ?? formData.order_type})}>
                       <SelectTrigger className="input-noir border-stark-white/10 h-12">
                         <SelectValue />
                       </SelectTrigger>
@@ -195,7 +195,7 @@ const OrderForm: React.FC = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
                   <div className="space-y-3">
                     <Label className="text-[11px] uppercase tracking-[0.2em] text-muted-gray font-bold">קאפ</Label>
-                    <Select value={formData.cup_size} onValueChange={(val: string) => setFormData({...formData, cup_size: val})}>
+                    <Select value={formData.cup_size} onValueChange={(val: string | null) => setFormData({...formData, cup_size: val ?? formData.cup_size})}>
                       <SelectTrigger className="input-noir border-stark-white/10 h-12">
                         <SelectValue />
                       </SelectTrigger>
